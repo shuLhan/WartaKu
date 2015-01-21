@@ -5,6 +5,8 @@
 // the 2nd parameter is an array of 'requires'
 var wartaku = angular.module ("wartaku", ["ionic"]);
 
+wartaku.server = "http://warta.app.localhost";
+
 wartaku.service ("FeedService", function ($q, $http)
 {
 	return {
@@ -12,7 +14,7 @@ wartaku.service ("FeedService", function ($q, $http)
 		{
 			var me = this;
 			var dfd = $q.defer ();
-			var url_base = "http://warta.app.localhost/feed/categories/?callback=JSON_CALLBACK";
+			var url_base = wartaku.server +"/feed/categories/?callback=JSON_CALLBACK";
 
 			$http.jsonp (url_base)
 				.success (function(data, status, headers, config) {
@@ -30,7 +32,7 @@ wartaku.service ("FeedService", function ($q, $http)
 		{
 			var me = this;
 			var dfd = $q.defer ();
-			var url_base = "http://warta.app.localhost/feed/category/";
+			var url_base = wartaku.server +"/feed/category/";
 
 			url_base += "?callback=JSON_CALLBACK";
 			url_base += "&id="+ category_id;
@@ -71,7 +73,7 @@ wartaku.config (function ($stateProvider, $urlRouterProvider)
 		"categories"
 	,	{
 			url			: "/feed/categories/"
-		,	cache		: true
+		,	cache		: false
 		,	templateUrl	: "feed/categories.html"
 		,	controller	: "FeedCategoriesCtrl"
 		,	resolve		:
@@ -87,7 +89,7 @@ wartaku.config (function ($stateProvider, $urlRouterProvider)
 		"category"
 	,	{
 			url			: "/feed/category/?id"
-		,	cache		: true
+		,	cache		: false
 		,	templateUrl	: "feed/category.html"
 		,	controller	: "FeedCategoryCtrl"
 		,	resolve		:
@@ -103,14 +105,13 @@ wartaku.config (function ($stateProvider, $urlRouterProvider)
 		"feed"
 	,	{
 			url			: "/feed/:id"
-		,	cache		: true
+		,	cache		: false
 		,	templateUrl	: "feed/item.html"
 		,	controller	: "FeedItemCtrl"
 		,	resolve		:
 			{
 				feed_item	: function ($stateParams, FeedService)
 				{
-					console.log ($stateParams.id);
 					return FeedService.get_feed_item ($stateParams.id);
 				}
 			}
@@ -122,6 +123,12 @@ wartaku.controller (
 	"FeedCategoriesCtrl"
 ,	function ($scope, categories)
 	{
+		// set host for category's image.
+		categories.data.forEach (function(c)
+		{
+			c.image = wartaku.server + c.image;
+		});
+
 		$scope.categories = categories;
 	}
 )
@@ -146,7 +153,6 @@ wartaku.controller (
 	"FeedItemCtrl"
 ,	function ($scope, feed_item)
 	{
-		console.log (feed_item);
 		$scope.feed_item = feed_item;
 	}
 );
