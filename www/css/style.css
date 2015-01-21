@@ -1,1 +1,9 @@
 /* Empty. Add your own CSS if you like */
+a {
+	text-decoration: none;
+}
+
+img {
+	width:100%;
+	height:auto;
+}
